@@ -1,0 +1,6 @@
+-- PostgreSQL schemas are separated by microservice database ownership.
+-- Create auth_db, tutor_db, and booking_db in pgAdmin, then run:
+--   auth_db:    auth-schema.sql
+--   tutor_db:   tutor-schema.sql
+--   booking_db: booking-schema.sql
+-- This file replaces the former MySQL-only consolidated schema.

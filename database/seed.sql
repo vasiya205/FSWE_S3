@@ -1,0 +1,2 @@
+-- No sample users are seeded. Register through the application so password hashes
+-- are generated with the configured BCrypt password encoder.

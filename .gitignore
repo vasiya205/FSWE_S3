@@ -1,0 +1,19 @@
+﻿# Frontend
+frontend/node_modules
+frontend/dist
+frontend/.vite
+
+# Java
+backend/**/target/
+*.class
+backend/build.log
+logs/
+
+# Local-only credentials and environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
