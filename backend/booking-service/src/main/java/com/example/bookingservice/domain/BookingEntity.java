@@ -35,9 +35,22 @@ public class BookingEntity {
     @Column(name = "hourly_rate", nullable = false, precision = 10, scale = 2)
     private BigDecimal hourlyRate;
 
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalAmount;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status = BookingStatus.PENDING;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false, length = 20)
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+
+    @Column(name = "razorpay_order_id", unique = true, length = 100)
+    private String razorpayOrderId;
+
+    @Column(name = "razorpay_payment_id", unique = true, length = 100)
+    private String razorpayPaymentId;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -49,7 +62,8 @@ public class BookingEntity {
 
     public BookingEntity() {}
 
-    public BookingEntity(Long studentUserId, Long tutorUserId, String subject, LocalDateTime startDateTime, LocalDateTime endDateTime, String notes, BigDecimal hourlyRate) {
+    public BookingEntity(Long studentUserId, Long tutorUserId, String subject, LocalDateTime startDateTime,
+                         LocalDateTime endDateTime, String notes, BigDecimal hourlyRate, BigDecimal totalAmount) {
         this.studentUserId = studentUserId;
         this.tutorUserId = tutorUserId;
         this.subject = subject;
@@ -57,6 +71,7 @@ public class BookingEntity {
         this.endDateTime = endDateTime;
         this.notes = notes;
         this.hourlyRate = hourlyRate;
+        this.totalAmount = totalAmount;
     }
 
     public Long getId() { return id; }
@@ -75,8 +90,16 @@ public class BookingEntity {
     public void setNotes(String notes) { this.notes = notes; }
     public BigDecimal getHourlyRate() { return hourlyRate; }
     public void setHourlyRate(BigDecimal hourlyRate) { this.hourlyRate = hourlyRate; }
+    public BigDecimal getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
     public BookingStatus getStatus() { return status; }
     public void setStatus(BookingStatus status) { this.status = status; }
+    public PaymentStatus getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
+    public String getRazorpayOrderId() { return razorpayOrderId; }
+    public void setRazorpayOrderId(String razorpayOrderId) { this.razorpayOrderId = razorpayOrderId; }
+    public String getRazorpayPaymentId() { return razorpayPaymentId; }
+    public void setRazorpayPaymentId(String razorpayPaymentId) { this.razorpayPaymentId = razorpayPaymentId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

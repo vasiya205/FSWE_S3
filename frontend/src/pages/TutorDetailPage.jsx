@@ -33,7 +33,6 @@ export default function TutorDetailPage() {
           startDateTime: booking.startDateTime,
           endDateTime: booking.endDateTime,
           notes: booking.notes || 'Requested lesson',
-          hourlyRate: tutor.hourlyRate,
         }),
       })
       setMessage('Booking request sent successfully.')

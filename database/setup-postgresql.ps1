@@ -34,12 +34,20 @@ function Invoke-PostgresCommand {
         [string[]]$Arguments
     )
 
-    $output = & $psqlPath --no-psqlrc --host localhost --port 5432 --username postgres --dbname $Database --no-password --set ON_ERROR_STOP=1 @Arguments 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        throw "PostgreSQL command failed for database '$Database':`n$($output -join [Environment]::NewLine)"
-    }
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        $output = & $psqlPath --no-psqlrc --host localhost --port 5432 --username postgres --dbname $Database --no-password --set ON_ERROR_STOP=1 @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+        if ($exitCode -ne 0) {
+            throw "PostgreSQL command failed for database '$Database' (exit code $exitCode):`n$($output -join [Environment]::NewLine)"
+        }
 
-    return $output
+        return $output
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
 }
 
 $securePassword = Read-Host "PostgreSQL password for user 'postgres' (input is hidden)" -AsSecureString

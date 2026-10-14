@@ -8,6 +8,7 @@ import com.example.bookingservice.api.ReviewResponse;
 import com.example.bookingservice.client.TutorProfileClient;
 import com.example.bookingservice.domain.BookingEntity;
 import com.example.bookingservice.domain.BookingStatus;
+import com.example.bookingservice.client.TutorProfileClient.TutorProfile;
 import com.example.bookingservice.domain.ReviewEntity;
 import com.example.bookingservice.repository.BookingRepository;
 import com.example.bookingservice.repository.ReviewRepository;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 
 @Service
 public class BookingService {
@@ -35,7 +39,7 @@ public class BookingService {
         if (studentUserId.equals(request.tutorUserId())) {
             throw new IllegalArgumentException("Students cannot book their own profile");
         }
-        tutorProfileClient.validateTutorProfile(request.tutorUserId());
+        TutorProfile tutorProfile = tutorProfileClient.getTutorProfile(request.tutorUserId());
         if (!request.startDateTime().isBefore(request.endDateTime())) {
             throw new IllegalArgumentException("Booking end time must be after start time");
         }
@@ -55,7 +59,8 @@ public class BookingService {
                 request.startDateTime(),
                 request.endDateTime(),
                 request.notes(),
-                request.hourlyRate()
+                tutorProfile.hourlyRate(),
+                calculateTotalAmount(tutorProfile.hourlyRate(), request.startDateTime(), request.endDateTime())
         );
         BookingEntity saved = bookingRepository.save(booking);
         return toResponse(saved);
@@ -145,9 +150,18 @@ public class BookingService {
                 booking.getEndDateTime(),
                 booking.getNotes(),
                 booking.getHourlyRate(),
+                booking.getTotalAmount(),
                 booking.getStatus().name(),
+                booking.getPaymentStatus().name(),
+                booking.getRazorpayPaymentId(),
                 booking.getCreatedAt(),
                 booking.getUpdatedAt()
         );
+    }
+
+    static BigDecimal calculateTotalAmount(BigDecimal hourlyRate, java.time.LocalDateTime start, java.time.LocalDateTime end) {
+        long durationSeconds = Duration.between(start, end).getSeconds();
+        return hourlyRate.multiply(BigDecimal.valueOf(durationSeconds))
+                .divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
     }
 }

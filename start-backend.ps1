@@ -35,6 +35,22 @@ $logDirectory = Join-Path $env:TEMP ("home-tutor-finder-startup-" + [guid]::NewG
 New-Item -ItemType Directory -Path $logDirectory | Out-Null
 
 try {
+    $razorpayKeyId = Read-Host "Razorpay TEST key ID (starts with rzp_test_)"
+    if ($razorpayKeyId -notmatch '^rzp_test_') {
+        throw "Only a rotated Razorpay TEST key is accepted. Do not use live payment credentials."
+    }
+
+    $secureRazorpaySecret = Read-Host "Razorpay TEST key secret (input is hidden)" -AsSecureString
+    $razorpaySecretPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureRazorpaySecret)
+    try {
+        $env:RAZORPAY_KEY_ID = $razorpayKeyId
+        $env:RAZORPAY_KEY_SECRET = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($razorpaySecretPointer)
+    }
+    finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($razorpaySecretPointer)
+        $secureRazorpaySecret.Dispose()
+    }
+
     foreach ($service in @(
         @{ Name = "auth-service"; Port = 8081 }
         @{ Name = "tutor-service"; Port = 8082 }
@@ -97,5 +113,5 @@ try {
     Write-Host "All backend services are running. Startup logs: $logDirectory"
 }
 finally {
-    Remove-Item Env:DB_HOST, Env:DB_PORT, Env:DB_USERNAME, Env:DB_PASSWORD, Env:JWT_SECRET -ErrorAction SilentlyContinue
+    Remove-Item Env:DB_HOST, Env:DB_PORT, Env:DB_USERNAME, Env:DB_PASSWORD, Env:JWT_SECRET, Env:RAZORPAY_KEY_ID, Env:RAZORPAY_KEY_SECRET -ErrorAction SilentlyContinue
 }

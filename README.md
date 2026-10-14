@@ -14,6 +14,7 @@ This project is a full-stack application for discovering home tutors and managin
 - Student, Tutor and Admin role separation
 - Tutor profile creation and editing from the tutor dashboard, plus public tutor search
 - Booking creation and status management
+- Razorpay sandbox checkout for accepted lessons, with server-side signature verification
 - Admin dashboard for reviewing users/bookings, disabling or re-enabling accounts, and cancelling active bookings
 - Review creation after completed lessons
 - JWT auth and protected endpoints
@@ -25,6 +26,7 @@ This project is already structured to meet the evaluation rubric for a full-stac
 - Backend development: Spring Boot microservices for auth, tutors, and bookings with API separation and protected endpoints
 - Database management: PostgreSQL-backed services using distinct schemas for `auth_db`, `tutor_db`, and `booking_db`
 - Security: JWT-based authentication, BCrypt password encoding, stateless sessions, and protected service APIs
+- Payments: test-mode checkout records a verified test payment; it does not charge a real card or transfer money to a tutor
 - Administration: admin-only management APIs; public registration cannot assign the Admin role
 - Application flow: end-to-end student/tutor flow from registration/login to tutor view and booking request
 - Repository quality: organized Maven multi-module backend, Vite frontend, and project-level startup scripts
@@ -37,7 +39,7 @@ This project is already structured to meet the evaluation rubric for a full-stac
 5. Start the frontend with `npm.cmd --prefix frontend run dev` and test the app at `http://localhost:5173`.
 6. Final checklist before submission:
    - Frontend works on desktop/mobile screens
-   - Auth, tutor search, and booking flow work end-to-end
+   - Auth, tutor search, booking, and sandbox payment flow work end-to-end
    - JWT security is active and protected endpoints require authentication
    - GitHub repository is valid, organized, and accessible
    - MOOCS course is completed and linked where required
@@ -111,6 +113,8 @@ $env:JWT_SECRET = "paste-the-same-generated-secret-here"
 
 The JWT secret line is a placeholder; substitute the same generated secret in every backend service terminal. The password prompt hides your input. Set `TUTOR_SERVICE_URL` in the Booking Service terminal only if the Tutor Service is not at its local default. The application requires `DB_PASSWORD` and `JWT_SECRET`; it does not fall back to H2 or a development signing secret.
 
+For manually starting the Booking Service, also set `RAZORPAY_KEY_ID` to your rotated Razorpay test key ID and set `RAZORPAY_KEY_SECRET` to its test secret. Keep both local, never commit them, and use a key ID beginning with `rzp_test_`. The recommended `start-backend.ps1` script prompts for these values instead of saving them in files.
+
 ## Build and run in VS Code
 
 Ensure PostgreSQL is running with all three databases and schemas set up. Open a separate integrated PowerShell terminal for each service. Environment variables are local to each terminal, so set them in every backend-service terminal before starting its service.
@@ -149,7 +153,11 @@ On Windows, after building and setting up PostgreSQL, you can instead run Eureka
 .\start-backend.ps1
 ```
 
-The script asks for the PostgreSQL password locally, generates one JWT secret shared by all three services, waits for their health checks, and verifies tutor search through the API Gateway. It does not create databases or change schemas; set those up first. Startup logs are written to a uniquely named folder under your Windows temporary directory. Restarting the script generates a new JWT secret, so sign in again after a restart.
+The script asks for the PostgreSQL password and a Razorpay **test** key ID/secret locally, generates one JWT secret shared by all three services, waits for their health checks, and verifies tutor search through the API Gateway. It only accepts a key ID beginning with `rzp_test_`; never use live credentials for this project demo. Rotate any credentials exposed in screenshots or messages before using them, and do not commit credentials. The script does not create databases or change schemas; set those up first. Startup logs are written to a uniquely named folder under your Windows temporary directory. Restarting the script generates a new JWT secret, so sign in again after a restart.
+
+### Demonstrate a sandbox lesson payment
+
+The student can pay for an accepted booking from the dashboard. The fee is calculated by the backend from the tutor's saved hourly rate and booking duration; the client cannot set the price. Razorpay's test checkout and the server-verified payment signature update the booking to `PAID`. This is a demonstration only: no real money is charged and no payout is transferred to a tutor. For an existing database, rerun `database/setup-postgresql.ps1` after stopping the services; its booking schema safely adds the payment columns and calculates totals for existing bookings.
 
 Start the frontend in another terminal from the project root:
 

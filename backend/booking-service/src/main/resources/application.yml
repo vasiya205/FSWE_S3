@@ -2,6 +2,9 @@ server:
   port: 8083
 tutor-service:
   base-url: ${TUTOR_SERVICE_URL:http://localhost:8082}
+razorpay:
+  key-id: ${RAZORPAY_KEY_ID:}
+  key-secret: ${RAZORPAY_KEY_SECRET:}
 spring:
   application:
     name: booking-service

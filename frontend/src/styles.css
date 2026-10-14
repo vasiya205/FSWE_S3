@@ -114,6 +114,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 .error-msg { background: #fce9e6; color: #98483d; }
 .success-msg { background: #e5f1e8; color: #356246; }
+.payment-confirmation { color: #356246; font-size: 0.9rem; font-weight: 600; }
 .toggle-text { margin-top: 1rem; text-align: center; }
 .tutor-search-intro { margin: 0 0 1.5rem; }
 .tutor-search-intro h1, .section-heading h2 { margin: 0; color: #49334f; }

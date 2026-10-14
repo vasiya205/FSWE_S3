@@ -125,6 +125,8 @@ export default function AdminDashboardPage() {
                   <p>
                     {new Date(booking.startDateTime).toLocaleString()} - {new Date(booking.endDateTime).toLocaleString()}
                   </p>
+                  <p>Lesson fee: ₹{booking.totalAmount} · Payment: {booking.paymentStatus} (TEST)</p>
+                  {booking.paymentReference && <p>Test payment reference: {booking.paymentReference}</p>}
                   <span className="status-badge">{booking.status}</span>
                 </div>
                 {(booking.status === 'PENDING' || booking.status === 'ACCEPTED') && (

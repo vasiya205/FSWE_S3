@@ -12,7 +12,10 @@ public record BookingResponse(
     LocalDateTime endDateTime,
     String notes,
     BigDecimal hourlyRate,
+    BigDecimal totalAmount,
     String status,
+    String paymentStatus,
+    String paymentReference,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {}

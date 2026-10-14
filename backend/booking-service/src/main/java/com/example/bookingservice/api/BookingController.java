@@ -1,6 +1,7 @@
 package com.example.bookingservice.api;
 
 import com.example.bookingservice.security.JwtPrincipal;
+import com.example.bookingservice.service.PaymentService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +14,11 @@ import java.util.List;
 @RequestMapping("/api")
 public class BookingController {
     private final com.example.bookingservice.service.BookingService bookingService;
+    private final PaymentService paymentService;
 
-    public BookingController(com.example.bookingservice.service.BookingService bookingService) {
+    public BookingController(com.example.bookingservice.service.BookingService bookingService, PaymentService paymentService) {
         this.bookingService = bookingService;
+        this.paymentService = paymentService;
     }
 
     @PostMapping("/bookings")
@@ -51,6 +54,20 @@ public class BookingController {
                                                       @PathVariable Long id,
                                                       @RequestBody BookingStatusRequest statusRequest) {
         return ResponseEntity.ok(bookingService.updateStatus(principal.userId(), id, statusRequest));
+    }
+
+    @PostMapping("/bookings/{id}/payments/order")
+    public ResponseEntity<PaymentOrderResponse> createPaymentOrder(
+            @AuthenticationPrincipal JwtPrincipal principal, @PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.createOrder(principal.userId(), id));
+    }
+
+    @PostMapping("/bookings/{id}/payments/verify")
+    public ResponseEntity<PaymentStatusResponse> verifyPayment(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @PathVariable Long id,
+            @Valid @RequestBody PaymentVerificationRequest request) {
+        return ResponseEntity.ok(paymentService.verifyPayment(principal.userId(), id, request));
     }
 
     @PostMapping("/reviews")
